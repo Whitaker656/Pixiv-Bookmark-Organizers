@@ -1,9 +1,6 @@
-﻿# PixivBM
+﻿# PixivBO
 
 Pixiv 북마크를 로컬에서 정리하고, 태그를 미리 검토한 뒤 실제 Pixiv 계정에 반영할 수 있는 도구입니다.
-
-이 저장소는 `PixivBM`의 공유용 버전입니다.  
-개인 쿠키, 실제 북마크 데이터, 작업 로그는 포함되어 있지 않습니다.
 
 이 프로젝트는 OpenAI Codex 5.4-assisted development 방식으로 개발되었습니다.
 
