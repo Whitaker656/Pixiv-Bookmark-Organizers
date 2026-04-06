@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixiv Bookmark Organizer</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icon/pixivbm-icon_S1.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-card">
+      <div class="loading-bar">
+        <span class="loading-bar-fill"></span>
+      </div>
+      <strong>북마크 불러오는 중</strong>
+      <p>경량 화면 데이터를 읽는 중입니다.</p>
+    </div>
+  </div>
+  <div class="app-shell">
+    <header id="app-top" class="top-bar">
+      <div>
+        <p class="eyebrow">Pixiv Bookmark Organizer</p>
+        <h1>북마크 태그 정리 대시보드</h1>
+      </div>
+      <div class="header-side">
+        <div class="header-actions card">
+          <button id="save-local-button" class="ghost-button" type="button">로컬 저장</button>
+          <button id="refresh-bookmarks-button" class="ghost-button" type="button">&#xC0C8; &#xBD81;&#xB9C8;&#xD06C; &#xAC00;&#xC838;&#xC624;&#xAE30;</button>
+          <button id="open-apply-modal-button" type="button">Pixiv에 적용</button>
+        </div>
+        <div class="login-status card">
+          <span id="session-status-dot" class="status-dot"></span>
+          <div class="login-status-copy">
+            <div class="login-status-head">
+              <strong id="session-status-title">&#xB85C;&#xADF8;&#xC778; &#xC0C1;&#xD0DC;</strong>
+              <div class="login-status-actions">
+                <button id="session-check-button" class="ghost-button mini-button" type="button">&#xC138;&#xC158; &#xD655;&#xC778;</button>
+                <button id="session-guide-button" class="ghost-button mini-button" type="button">&#xB85C;&#xADF8;&#xC778; &#xC548;&#xB0B4;</button>
+              </div>
+            </div>
+            <p id="session-status-text">Pixiv &#xC5F0;&#xACB0; &#xC900;&#xBE44;&#xB428;</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel card tag-list-panel">
+        <div class="panel-header">
+          <h2>태그 목록</h2>
+          <button id="reset-data-button" type="button">초기화</button>
+        </div>
+        <section class="side-section">
+          <div class="section-title-row">
+            <strong>Pixiv 북마크 태그</strong>
+            <button id="clear-tag-search-button" class="ghost-button mini-button" type="button">태그 검색 해제</button>
+          </div>
+          <div id="pixiv-bookmark-tag-list" class="tag-list compact-tag-list"></div>
+        </section>
+        <div id="bookmark-search-status" class="search-status-card"></div>
+      </aside>
+
+      <section class="panel card gallery-panel">
+        <div class="panel-header">
+          <div>
+            <h2>작품 갤러리</h2>
+            <p>북마크 작품 미리보기와 정리 상태</p>
+          </div>
+          <div class="item-actions">
+            <button id="select-all-button" class="ghost-button" type="button">전체 선택</button>
+            <button id="clear-selection-button" type="button">선택 해제</button>
+          </div>
+        </div>
+        <div class="gallery-toolbar">
+          <input id="gallery-search-input" type="text" placeholder="제목, 작가, 태그 검색">
+          <select id="gallery-page-size-select">
+            <option value="24">24개씩 보기</option>
+            <option value="48" selected>48개씩 보기</option>
+            <option value="96">96개씩 보기</option>
+          </select>
+        </div>
+        <div class="quick-actions card">
+          <div class="quick-actions-copy">
+            <strong>선택 작품 빠른 작업</strong>
+            <p id="selection-quick-summary">왼쪽에서 태그를 고르고, 중앙에서 선택한 뒤, 여기서 바로 계정 태그를 처리합니다.</p>
+            <div class="quick-selection-metrics">
+              <div class="metric-pill">
+                <span>선택 작품</span>
+                <strong id="quick-selection-count">0개</strong>
+              </div>
+              <div class="metric-pill">
+                <span>현재 기준</span>
+                <strong id="quick-selection-context">전체 보기</strong>
+              </div>
+            </div>
+          </div>
+          <form id="quick-add-tag-form" class="quick-actions-form">
+            <label class="quick-field">
+              <span>추가할 태그</span>
+              <select id="quick-add-tag-select" name="quickAddTag" required></select>
+            </label>
+            <button type="submit">선택 작품에 태그 추가</button>
+          </form>
+          <form id="quick-replace-tag-form" class="quick-actions-form quick-actions-form-wide">
+            <label class="quick-field">
+              <span>기존 태그</span>
+              <select id="quick-replace-source-select" name="quickReplaceSource" required></select>
+            </label>
+            <label class="quick-field">
+              <span>새 태그</span>
+              <select id="quick-replace-target-select" name="quickReplaceTarget" required></select>
+            </label>
+            <button type="submit">선택 작품<br>태그 치환</button>
+          </form>
+        </div>
+        <div class="thumbnail-cache-card card">
+          <div>
+            <strong>&#xC378;&#xB124;&#xC77C; &#xCC44;&#xC6B0;&#xAE30;</strong>
+            <p>&#xD604;&#xC7AC; &#xD398;&#xC774;&#xC9C0; &#xC791;&#xD488;&#xC744; &#xBA3C;&#xC800; &#xBCF4;&#xACE0;, &#xB0A8;&#xC740; &#xC791;&#xD488;&#xC740; &#xCC9C;&#xCC9C;&#xD788; &#xC774;&#xC5B4;&#xC11C; &#xCC44;&#xC6C1;&#xB2C8;&#xB2E4;.</p>
+          </div>
+          <div class="thumbnail-cache-actions">
+            <button id="thumbnail-repeat-button" class="ghost-button mini-button" type="button">&#xCC9C;&#xCC9C;&#xD788; &#xACC4;&#xC18D;</button>
+            <button id="thumbnail-once-button" class="ghost-button mini-button" type="button">10&#xAC1C;&#xB9CC; &#xB354;</button>
+          </div>
+          <p id="thumbnail-cache-summary" class="thumbnail-cache-summary"></p>
+          <p id="thumbnail-worker-status" class="thumbnail-cache-summary"></p>
+        </div>
+        <div id="gallery-filters" class="filter-row"></div>
+        <div id="gallery-top-pagination" class="pagination-row top-pagination-row"></div>
+        <div id="gallery-summary" class="gallery-summary"></div>
+        <div id="gallery-grid" class="gallery-grid"></div>
+        <div id="gallery-pagination" class="pagination-row"></div>
+      </section>
+
+      <aside class="panel card work-tag-panel">
+        <div class="panel-header">
+          <h2><span class="label-pixiv">Pixiv 태그</span> / <span class="label-account">계정 태그</span></h2>
+          <button id="apply-recommendations-button" type="button">추천 적용</button>
+        </div>
+        <div id="selected-work" class="selected-work"></div>
+      </aside>
+    </main>
+
+    <section id="tag-manager-panel" class="bottom-panel card">
+      <div class="panel-header">
+        <div>
+          <h2>태그 관리 패널</h2>
+          <p>필요한 작업을 아래에서 한 번에 정리합니다.</p>
+        </div>
+      </div>
+      <div class="manager-grid">
+        <article class="manager-card">
+          <h3>계정 태그 관리</h3>
+          <p>빠른 작업과 치환 규칙에서 쓸 계정 태그를 여기서 정리합니다.</p>
+          <form id="add-tag-form" class="stack-form compact-form">
+            <input id="new-tag-name" name="tagName" type="text" placeholder="새 계정 태그 이름" required>
+            <input id="new-tag-note" name="tagNote" type="text" placeholder="태그 용도 메모">
+            <button type="submit">태그 추가</button>
+          </form>
+          <div id="account-tag-list" class="tag-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3><span class="label-pixiv">Pixiv 태그</span> -> <span class="label-account">계정 태그</span> 매핑</h3>
+          <p>Pixiv 태그를 직접 입력하거나 현재 작품의 태그를 골라 계정 태그와 연결합니다.</p>
+          <form id="mapping-form" class="stack-form compact-form">
+            <input id="pixiv-tag-input" name="pixivTagInput" type="text" placeholder="Pixiv 태그 직접 입력">
+            <select id="pixiv-tag-select" name="pixivTag" required></select>
+            <select id="account-tag-select" name="accountTag" required></select>
+            <button type="submit">매핑 추가</button>
+          </form>
+          <div id="mapping-list" class="mapping-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3>태그 작업</h3>
+          <p>선택된 작품에 계정 태그를 붙이거나 제거합니다.</p>
+          <form id="assign-tag-form" class="stack-form compact-form">
+            <select id="assign-tag-select" name="assignTag" required></select>
+            <button type="submit">선택 작품에 추가</button>
+          </form>
+          <div id="selected-account-tags" class="mapping-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3>계정 태그 일괄 치환</h3>
+          <p>기존 계정 태그를 새 태그로 바꾸는 규칙입니다.</p>
+          <form id="replace-rule-form" class="stack-form compact-form">
+            <select id="replace-source-tag-select" name="replaceSourceTag" required></select>
+            <select id="replace-target-tag-select" name="replaceTargetTag" required></select>
+            <button type="submit">치환 규칙 추가</button>
+          </form>
+          <div id="replace-rule-list" class="mapping-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3>태그 추천</h3>
+          <p>체크된 작품의 Pixiv 태그, 글자 유사도, 기존 북마크 태그 작품 패턴을 합쳐 확률 기반으로 추천합니다.</p>
+          <div id="recommendation-list" class="mapping-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3>삭제 북마크 정리</h3>
+          <p>삭제된 작품만 따로 모아 선택 후 북마크를 일괄 해제합니다.</p>
+          <div class="batch-toolbar">
+            <button id="select-all-deleted-button" class="ghost-button mini-button" type="button">전체 선택</button>
+            <button id="clear-deleted-selection-button" class="ghost-button mini-button" type="button">선택 해제</button>
+            <button id="remove-selected-deleted-button" class="ghost-button mini-button" type="button">선택 북마크 해제</button>
+          </div>
+          <div id="deleted-bookmark-status" class="selection-note"></div>
+          <div id="deleted-bookmark-list" class="mapping-list"></div>
+        </article>
+        <article class="manager-card">
+          <h3>문제 작품 관리</h3>
+          <p>삭제, 비공개, 중복 후보 작품을 따로 보여줍니다.</p>
+          <div id="issue-list" class="mapping-list"></div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <nav class="section-jump-nav" aria-label="빠른 이동">
+    <button class="section-jump-button" type="button" data-scroll-target="app-top">위로</button>
+    <button class="section-jump-button ghost-button" type="button" data-scroll-target="tag-manager-panel">태그 관리</button>
+  </nav>
+
+  <div id="feedback-toast" class="feedback-toast" aria-live="polite"></div>
+
+  <div id="apply-modal" class="modal-overlay is-hidden">
+    <div class="modal-card">
+      <div class="panel-header">
+        <div>
+          <h2>Pixiv 적용 확인</h2>
+          <p>실제 계정 반영은 여기서 확인한 뒤 별도 명령으로 실행합니다.</p>
+        </div>
+        <button id="close-apply-modal-button" class="ghost-button" type="button">닫기</button>
+      </div>
+      <div class="modal-copy">
+        <p id="apply-modal-summary"></p>
+        <div class="command-box">
+          <strong>&#xB3D9;&#xAE30;&#xD654; &#xACC4;&#xD68D; &#xD30C;&#xC77C;</strong>
+          <code id="sync-plan-path">data/tag_sync_plan.json</code>
+          <p id="sync-plan-summary"></p>
+        </div>
+        <div class="command-box">
+          <strong>&#xC2E4;&#xD589; &#xC0C1;&#xD0DC;</strong>
+          <label class="option-check" for="apply-selected-only-checkbox">
+            <input id="apply-selected-only-checkbox" type="checkbox">
+            <span id="apply-selected-only-label">&#xC120;&#xD0DD; &#xC791;&#xD488;&#xB9CC; &#xC801;&#xC6A9;</span>
+          </label>
+          <p id="sync-progress-summary">&#xC544;&#xC9C1; &#xC801;&#xC6A9; &#xC791;&#xC5C5;&#xC774; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+          <p id="sync-action-summary">&#xB85C;&#xCEEC; &#xC11C;&#xBC84;&#xC5D0;&#xC11C; &#xACC4;&#xD68D; &#xC800;&#xC7A5;&#xACFC; &#xBBF8;&#xB9AC;&#xBCF4;&#xAE30;, &#xC18C;&#xB7C9; &#xC801;&#xC6A9;&#xC744; &#xC2E4;&#xD589;&#xD560; &#xC218; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
+          <pre id="sync-action-results" class="sync-result-box">&#xC544;&#xC9C1; &#xC2E4;&#xD589;&#xD55C; &#xC791;&#xC5C5;&#xC774; &#xC5C6;&#xC2B5;&#xB2C8;&#xB2E4;.</pre>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="save-sync-plan-button" class="ghost-button" type="button">&#xACC4;&#xD68D; &#xC800;&#xC7A5;</button>
+        <button id="run-sync-preview-button" class="ghost-button" type="button">&#xBBF8;&#xB9AC;&#xBCF4;&#xAE30; &#xC2E4;&#xD589;</button>
+        <button id="stop-sync-apply-button" class="ghost-button" type="button">&#xC790;&#xB3D9; &#xC801;&#xC6A9; &#xC911;&#xC9C0;</button>
+        <button id="run-sync-apply-button" type="button">&#xC790;&#xB3D9; &#xC801;&#xC6A9;</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/bookmark_tag_stats.js"></script>
+  <script src="data/bookmarks_ui_snapshot.js"></script>
+  <script src="data/thumbnail_cache_index.js"></script>
+  <script src="app.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      document.body.classList.add("is-loaded");
+    });
+    window.setTimeout(() => {
+      document.body.classList.add("is-loaded");
+    }, 1500);
+  </script>
+</body>
+</html>
+

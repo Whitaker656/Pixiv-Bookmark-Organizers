@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    {
+      "pixiv_tag": "sample-pixiv-tag",
+      "account_tag": "sample-account-tag"
+    }
+  ],
+  "replace_rules": [
+    {
+      "source_account_tag": "old-account-tag",
+      "target_account_tag": "new-account-tag"
+    }
+  ],
+  "manual_overrides": [
+    {
+      "artwork_id": "123456789",
+      "bookmark_tags": [
+        "sample-account-tag"
+      ]
+    }
+  ]
+}
